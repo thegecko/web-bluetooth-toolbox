@@ -1,0 +1,147 @@
+/* Skeleton extensions */
+input[type="color"],
+input[type="date"],
+input[type="datetime-local"],
+input[type="time"] {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    height: 38px;
+    padding: 6px 10px;
+    background-color: #fff;
+    border: 1px solid #D1D1D1;
+    border-radius: 4px;
+    box-shadow: none;
+    box-sizing: border-box;
+}
+input[type="color"]:focus,
+input[type="date"]:focus,
+input[type="datetime-local"]:focus,
+input[type="time"]:focus {
+    border: 1px solid #33C3F0;
+    outline: 0;
+}
+
+input[type="text"],
+input[type="password"],
+select,
+textarea {
+    width: 100%;
+}
+
+button,
+input[type="button"],
+input[type="submit"] {
+    color: #FFF;
+    background-color: #33C3F0;
+    border-color: #33C3F0;
+    margin: 5px;
+}
+button:hover,
+input[type="button"]:hover,
+input[type="submit"]:hover,
+button:focus,
+input[type="button"]:focus,
+input[type="submit"]:focus {
+    color: #FFF;
+    background-color: #1EAEDB;
+    border-color: #1EAEDB;
+}
+button:disabled,
+input[type="button"]:disabled,
+input[type="submit"]:disabled {
+    background-color: #CCCCCC;
+    border-color: #CCCCCC;
+}
+
+input[type="checkbox"] {
+    display: inline;
+}
+input[type="checkbox"] + label {
+    display: inline-block;
+    margin-left: .5rem;
+}
+
+textarea {
+    resize:vertical;
+}
+
+/* Loader */
+.loader,
+.loader:after {
+    border-radius: 50%;
+    width: 10em;
+    height: 10em;
+}
+.loader {
+    visibility: hidden;
+    margin: 60px auto;
+    font-size: 10px;
+    position: relative;
+    text-indent: -9999em;
+    border-top: 1.1em solid rgba(88,177,240, 0.2);
+    border-right: 1.1em solid rgba(88,177,240, 0.2);
+    border-bottom: 1.1em solid rgba(88,177,240, 0.2);
+    border-left: 1.1em solid #58b1f0;
+    -webkit-transform: translateZ(0);
+    -ms-transform: translateZ(0);
+    transform: translateZ(0);
+    -webkit-animation: load8 1.1s infinite linear;
+    animation: load8 1.1s infinite linear;
+}
+@-webkit-keyframes load8 {
+    0% {
+        -webkit-transform: rotate(0deg);
+        transform: rotate(0deg);
+    }
+    100% {
+        -webkit-transform: rotate(360deg);
+        transform: rotate(360deg);
+    }
+}
+@keyframes load8 {
+    0% {
+        -webkit-transform: rotate(0deg);
+        transform: rotate(0deg);
+    }
+    100% {
+        -webkit-transform: rotate(360deg);
+        transform: rotate(360deg);
+    }
+}
+
+/* Page */
+body {
+    text-align: center;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    border-bottom: 1px solid #efefef;
+}
+
+table {
+    margin: 10px auto;
+}
+
+/* Flash */
+.flash {
+    animation-name: flash-animation;
+    animation-duration: 1.0s;
+}
+
+@keyframes flash-animation {  
+    from { background: yellow; }
+    to   { background: default; }
+}
+
+.disconnect {
+    position: absolute;
+    display: inline-block;
+    top: 0;
+    right: 0;
+    margin: 5px;
+    padding: 0 6px;
+    font-size: 18px;
+    height: 28px;
+    line-height: 28px;
+}

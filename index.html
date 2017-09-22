@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>BLE Toolbox</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css">
+    <link rel="stylesheet" href="style/main.css">
+</head>
+</html>
+<body>
+    <div id="loader" class="loader"></div>
+    <button id="disconnect" class="disconnect" style="visibility: hidden;">✕</button>
+    <h3>BLE Toolbox</h3>
+    <h5 id="status" style="visibility: hidden;"></h5>
+    <button id="select">select device</button>
+
+    <table>
+        <thead><tr>
+            <th>UUID</th>
+            <th>Info</th>
+            <th>Value</th>
+        </tr></thead>
+        <tbody id="container"></tbody>
+    </table>
+
+    <div id="results"></div>
+
+    <script type="text/javascript" src="script/bleControl.js"></script>
+    <script type="text/javascript">
+
+        let loaderEl = document.getElementById("loader");
+        let disconnectEl = document.getElementById("disconnect");
+        let statusEl = document.getElementById("status");
+        let selectEl = document.getElementById("select");
+        let containerEl = document.getElementById("container");
+        let resultsEl = document.getElementById("results");
+
+        let props = [
+            "authenticatedSignedWrites",
+            "broadcast",
+            "indicate",
+            "notify",
+            "read",
+            "reliableWrite",
+            "writableAuxiliaries",
+            "write",
+            "writeWithoutResponse"
+        ];
+
+        let bleControl = new BleControl();
+        //bleControl.addLogger(log);
+
+        function log(message) {
+            console.log(message);
+            resultsEl.innerText += message + "\n";
+        }
+
+        // Dom element builder
+        function buildElement(type, value, parent, attributes) {
+            var element = document.createElement(type);
+            if (value) element.innerHTML = value;
+            if (parent) parent.appendChild(element);
+            return element;
+        }
+
+        function updateStatus(message) {
+            statusEl.innerText = message;
+            statusEl.style.visibility = message ? "visible" : "hidden";
+        }
+
+        function getValue(value) {
+            return String.fromCharCode.apply(null, new Uint8Array(value.buffer));
+        }
+
+        function getProps(value) {
+            var properties = props.filter(prop => {
+                return value[prop] === true;
+            });
+
+            return properties.join(", ");
+        }
+
+        function selectDevice() {
+            bleControl.requestDevice([0xFe8e, 0xFE59, 0x180D, 0x9866])
+            .then(() => {
+                loaderEl.style.visibility = "visible";
+                return bleControl.connectDevice();
+            })
+            .then(device => {
+                updateStatus(`Connected to: ${device.id} (${device.name})`);
+                selectEl.style.visibility = "hidden";
+                disconnectEl.style.visibility = "visible";
+                return bleControl.listServices()
+            })
+            .then(services => {
+
+                // Build UI
+                services.forEach(service => {
+                    let serviceRow = containerEl.insertRow();
+                    buildElement("td", service.uuid, serviceRow);
+                    buildElement("td", service.isPrimary ? "primary" : "", serviceRow);
+                    buildElement("td", "&nbsp;", serviceRow);
+                    let characteristicRows = [];
+
+                    // List characteristics
+                    serviceRow.addEventListener("click", event => {
+                        bleControl.listCharacteristics(service)
+                        .then(characteristics => {
+
+                            while(characteristicRows.length > 0) containerEl.removeChild(characteristicRows.pop());
+                            characteristics.forEach(characteristic => {
+                                let characteristicRow = containerEl.insertRow(serviceRow.rowIndex);
+                                buildElement("td", `\tc-${characteristic.uuid}`, characteristicRow);
+                                buildElement("td", getProps(characteristic.properties), characteristicRow);
+                                buildElement("td", getValue(characteristic.value), characteristicRow);
+                                characteristicRows.push(characteristicRow);
+                                let descriptorRows = [];
+                                //readvalue() - format?
+                                //writevalue() - popup
+                                //startnotifications() - output area?
+                                //stopnotifications()
+
+                                // List descriptors
+                                characteristicRow.addEventListener("click", event => {
+                                    bleControl.listDescriptors(characteristic)
+                                    .then(descriptors => {
+
+                                        while(descriptorRows.length > 0) containerEl.removeChild(descriptorRows.pop());
+                                        descriptors.forEach(descriptor => {
+                                            var descriptorRow = containerEl.insertRow(characteristicRow.rowIndex);
+                                            buildElement("td", `\t\td-${descriptor.uuid}`, descriptorRow);
+                                            buildElement("td", "&nbsp;", descriptorRow);
+                                            buildElement("td", getValue(descriptor.value), descriptorRow);
+                                            descriptorRows.push(descriptorRow);
+                                            //readvalue() - format?
+                                            //writevalue() - popup
+                                        });
+                                    })
+                                    .catch(error => {
+                                        log(error.message || error);
+                                    });
+                                });
+                            });
+                        })
+                        .catch(error => {
+                            log(error.message || error);
+                        });
+                    });
+                });
+                loaderEl.style.visibility = "hidden";
+            })
+            .catch(error => {
+                loaderEl.style.visibility = "hidden";
+                log(error.message || error);
+            })
+        }
+
+        function disconnectDevice() {
+            bleControl.disconnectDevice();
+            updateStatus();
+            selectEl.style.visibility = "visible";
+            disconnectEl.style.visibility = "hidden";
+        }
+
+        selectEl.addEventListener("click", selectDevice);
+        disconnectEl.addEventListener("click", disconnectDevice);
+    </script>
+</body>
+</html>
