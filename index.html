@@ -83,7 +83,8 @@
         }
 
         function selectDevice() {
-            bleControl.requestDevice([0xFe8e, 0xFE59, 0x180D, 0x9866])
+            // bleControl.requestDevice([0xFe8e, 0xFE59, 0x180D, 0x9866])
+            bleControl.requestDevice()
             .then(() => {
                 loaderEl.style.visibility = "visible";
                 return bleControl.connectDevice();
